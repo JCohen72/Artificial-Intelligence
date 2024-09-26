@@ -109,4 +109,65 @@ def breadthFirstSearch(problem):
             if successor not in visited:
                 visited.add(successor)
                 fringe.push((successor, path + [action]))
-    return []  # Return empty path if 
+    return []  # Return empty path if no solution found
+
+def uniformCostSearch(problem):
+    """
+    Search the node of least total cost first using Uniform Cost Search (UCS).
+    """
+    fringe = util.PriorityQueue()
+    fringe.push((problem.getStartState(), []), 0)
+    visited = {}  # Map of visited states to their lowest cost
+
+    while not fringe.isEmpty():
+        state, path = fringe.pop()
+        cost = problem.getCostOfActions(path)
+        if state in visited and visited[state] <= cost:
+            continue
+        visited[state] = cost
+        if problem.isGoalState(state):
+            return path
+        # Enqueue successors with updated cost
+        for successor, action, stepCost in problem.getSuccessors(state):
+            newPath = path + [action]
+            newCost = problem.getCostOfActions(newPath)
+            fringe.push((successor, newPath), newCost)
+    return []  # Return empty path if no solution found
+
+def nullHeuristic(state, problem=None):
+    """
+    A heuristic function estimates the cost from the current state to the nearest
+    goal in the provided SearchProblem.  This heuristic is trivial.
+    """
+    return 0
+
+def aStarSearch(problem, heuristic=nullHeuristic):
+    """
+    Search the node with the lowest combined cost and heuristic first using A* Search.
+    """
+    fringe = util.PriorityQueue()
+    startState = problem.getStartState()
+    fringe.push((startState, []), heuristic(startState, problem))
+    visited = {}  # Map of visited states to their lowest cost
+
+    while not fringe.isEmpty():
+        state, path = fringe.pop()
+        cost = problem.getCostOfActions(path)
+        if state in visited and visited[state] <= cost:
+            continue
+        visited[state] = cost
+        if problem.isGoalState(state):
+            return path
+        # Enqueue successors with updated cost and heuristic
+        for successor, action, stepCost in problem.getSuccessors(state):
+            newPath = path + [action]
+            newCost = problem.getCostOfActions(newPath)
+            totalCost = newCost + heuristic(successor, problem)
+            fringe.push((successor, newPath), totalCost)
+    return []  # Return empty path if no solution found
+
+# Abbreviations
+bfs = breadthFirstSearch
+dfs = depthFirstSearch
+astar = aStarSearch
+ucs = uniformCostSearch
